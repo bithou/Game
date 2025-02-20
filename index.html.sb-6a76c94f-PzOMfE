@@ -1,0 +1,177 @@
+{\rtf1\ansi\ansicpg936\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset134 PingFangSC-Regular;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 from kivy.app import App\
+from kivy.uix.boxlayout import BoxLayout\
+from kivy.uix.button import Button\
+from kivy.uix.label import Label\
+from kivy.uix.textinput import TextInput\
+from kivy.core.window import Window\
+import random\
+\
+class NumberGameApp(App):\
+    def build(self):\
+        self.target_number = None\
+        self.attempts_left = None\
+        self.range = None\
+        \
+        # 
+\f1 \'b4\'b4\'bd\'a8\'d6\'f7\'b2\'bc\'be\'d6
+\f0 \
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)\
+        \
+        # 
+\f1 \'b4\'b4\'bd\'a8\'d3\'ce\'cf\'b7\'b1\'ea\'cc\'e2
+\f0 \
+        self.title_label = Label(\
+            text='
+\f1 \'b2\'c2\'ca\'fd\'d7\'d6\'d3\'ce\'cf\'b7
+\f0 ',\
+            size_hint_y=None,\
+            height=50\
+        )\
+        layout.add_widget(self.title_label)\
+        \
+        # 
+\f1 \'b4\'b4\'bd\'a8\'c4\'d1\'b6\'c8\'d1\'a1\'d4\'f1\'b0\'b4\'c5\'a5
+\f0 \
+        self.difficulty_layout = BoxLayout(orientation='vertical', spacing=10)\
+        self.difficulty_layout.add_widget(Label(text='
+\f1 \'d1\'a1\'d4\'f1\'c4\'d1\'b6\'c8\'a3\'ba
+\f0 '))\
+        difficulties = [('
+\f1 \'bc\'f2\'b5\'a5
+\f0 ', 50, 10), ('
+\f1 \'d6\'d0\'b5\'c8
+\f0 ', 100, 7), ('
+\f1 \'c0\'a7\'c4\'d1
+\f0 ', 200, 5)]\
+        for diff, range_val, attempts in difficulties:\
+            btn = Button(\
+                text=diff,\
+                size_hint_y=None,\
+                height=50\
+            )\
+            btn.bind(on_press=lambda x, r=range_val, a=attempts: self.start_game(r, a))\
+            self.difficulty_layout.add_widget(btn)\
+        layout.add_widget(self.difficulty_layout)\
+        \
+        # 
+\f1 \'b4\'b4\'bd\'a8\'d3\'ce\'cf\'b7\'c7\'f8\'d3\'f2\'a3\'a8\'b3\'f5\'ca\'bc\'d2\'fe\'b2\'d8\'a3\'a9
+\f0 \
+        self.game_layout = BoxLayout(orientation='vertical', spacing=10)\
+        self.info_label = Label(text='')\
+        self.game_layout.add_widget(self.info_label)\
+        \
+        self.input = TextInput(\
+            multiline=False,\
+            size_hint_y=None,\
+            height=50\
+        )\
+        self.game_layout.add_widget(self.input)\
+        \
+        self.guess_button = Button(\
+            text='
+\f1 \'b2\'c2\'a3\'a1
+\f0 ',\
+            size_hint_y=None,\
+            height=50\
+        )\
+        self.guess_button.bind(on_press=self.make_guess)\
+        self.game_layout.add_widget(self.guess_button)\
+        \
+        self.message_label = Label(text='')\
+        self.game_layout.add_widget(self.message_label)\
+        \
+        self.reset_button = Button(\
+            text='
+\f1 \'d6\'d8\'d0\'c2\'bf\'aa\'ca\'bc
+\f0 ',\
+            size_hint_y=None,\
+            height=50\
+        )\
+        self.reset_button.bind(on_press=self.reset_game)\
+        self.game_layout.add_widget(self.reset_button)\
+        \
+        self.game_layout.opacity = 0\
+        layout.add_widget(self.game_layout)\
+        \
+        return layout\
+    \
+    def start_game(self, range_val, attempts):\
+        self.range = range_val\
+        self.attempts_left = attempts\
+        self.target_number = random.randint(1, range_val)\
+        self.difficulty_layout.opacity = 0\
+        self.game_layout.opacity = 1\
+        self.info_label.text = f'
+\f1 \'b2\'c2\'d2\'bb\'b8\'f6
+\f0 1
+\f1 \'b5\'bd
+\f0 \{range_val\}
+\f1 \'d6\'ae\'bc\'e4\'b5\'c4\'ca\'fd\'d7\'d6
+\f0 \\n
+\f1 \'c4\'e3\'bb\'b9\'d3\'d0
+\f0 \{attempts\}
+\f1 \'b4\'ce\'bb\'fa\'bb\'e1
+\f0 '\
+        \
+    def make_guess(self, instance):\
+        try:\
+            guess = int(self.input.text)\
+            if not 1 <= guess <= self.range:\
+                self.message_label.text = f'
+\f1 \'c7\'eb\'ca\'e4\'c8\'eb
+\f0 1
+\f1 \'b5\'bd
+\f0 \{self.range\}
+\f1 \'d6\'ae\'bc\'e4\'b5\'c4\'ca\'fd\'d7\'d6\'a3\'a1
+\f0 '\
+                return\
+            \
+            self.attempts_left -= 1\
+            \
+            if guess == self.target_number:\
+                self.message_label.text = f'
+\f1 \'b9\'a7\'cf\'b2\'c4\'e3\'b2\'c2\'b6\'d4\'c1\'cb\'a3\'a1\'b4\'f0\'b0\'b8\'be\'cd\'ca\'c7
+\f0 \{self.target_number\}'\
+                self.guess_button.disabled = True\
+            elif self.attempts_left <= 0:\
+                self.message_label.text = f'
+\f1 \'d3\'ce\'cf\'b7\'bd\'e1\'ca\'f8\'a3\'a1\'d5\'fd\'c8\'b7\'b4\'f0\'b0\'b8\'ca\'c7
+\f0 \{self.target_number\}'\
+                self.guess_button.disabled = True\
+            else:\
+                hint = '
+\f1 \'cc\'ab\'b4\'f3\'c1\'cb\'a3\'a1
+\f0 ' if guess > self.target_number else '
+\f1 \'cc\'ab\'d0\'a1\'c1\'cb\'a3\'a1
+\f0 '\
+                self.message_label.text = f'\{hint\}\\n
+\f1 \'bb\'b9\'ca\'a3
+\f0 \{self.attempts_left\}
+\f1 \'b4\'ce\'bb\'fa\'bb\'e1
+\f0 '\
+            \
+            self.input.text = ''\
+        except ValueError:\
+            self.message_label.text = '
+\f1 \'c7\'eb\'ca\'e4\'c8\'eb\'d3\'d0\'d0\'a7\'b5\'c4\'ca\'fd\'d7\'d6\'a3\'a1
+\f0 '\
+    \
+    def reset_game(self, instance):\
+        self.difficulty_layout.opacity = 1\
+        self.game_layout.opacity = 0\
+        self.message_label.text = ''\
+        self.input.text = ''\
+        self.guess_button.disabled = False\
+\
+if __name__ == '__main__':\
+    Window.clearcolor = (1, 1, 1, 1)  # 
+\f1 \'c9\'e8\'d6\'c3\'b0\'d7\'c9\'ab\'b1\'b3\'be\'b0
+\f0 \
+    NumberGameApp().run()}
